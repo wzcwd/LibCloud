@@ -1,0 +1,89 @@
+﻿@using LibraryManagementSystem.Models.ViewModels
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<LibraryManagementSystem.Models.ViewModels.BookViewModel>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-6">Welcome to Luke's Library Management System</h1>
+</div>
+
+<form asp-action="Search" asp-controller="Home" method="get" class="input-group">
+    <div class="input-group">
+        <span class="input-group-text" id="basic-addon1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+                 viewBox="0 0 16 16">
+                <path
+                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+            </svg>
+        </span>
+
+        <input type="text" class="form-control" name="searchString" placeholder="Search by book or author">
+
+        <!-- single option button -->
+        <div class="input-group-text bg-light border-0">
+            <div class="form-check form-check-inline">
+                <label class="form-check-label" for="searchBook">Book</label>
+                <input class="form-check-input" type="radio" name="searchBy" id="searchBook" value="book" checked>
+            </div>
+            <div class="form-check form-check-inline">
+                <label class="form-check-label" for="searchAuthor">Author</label>
+                <input class="form-check-input" type="radio" name="searchBy" id="searchAuthor" value="author">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+<br/>
+<table class="table table-bordered table-striped table-sm text-center">
+    <thead>
+    <tr>
+        <th>Book ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @*avoid null pointer exception*@
+    @foreach (var book in Model ?? Enumerable.Empty<BookViewModel>())
+    {
+        var highlightedTitle = book.Title;
+        var searchString = ViewData["SearchString"]?.ToString();
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            highlightedTitle = highlightedTitle.Replace(searchString,
+                $"<span style='color: red;'>{searchString}</span>");
+        }
+        
+        <tr>
+            <td>@book.BookId</td>
+            <td>@Html.Raw(highlightedTitle)</td> <!-- mark the keyword red! -->
+            <td>@book.AuthorName</td>
+            <td>
+                <div class="d-flex justify-content-center">
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId"
+                       class="btn btn-sm btn-primary me-2">
+                        Details
+                    </a>
+                    <a asp-controller="Book" asp-action="Edit" asp-route-id="@book.BookId"
+                       class="btn btn-sm btn-warning me-2">Edit</a>
+                    <a asp-controller="Book" asp-action="Delete" asp-route-id="@book.BookId"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Are you sure to delete this book?');">
+                        Delete
+                    </a>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<!-- page -->
+<div class="pagination">
+    @Html.PagedListPager(Model, page => Url.Action("Search", new { page }))
+</div>

@@ -1,0 +1,42 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<LibraryManagementSystem.Models.ViewModels.LibraryBranchViewModel>
+
+@{
+    ViewData["Title"] = "All Branches";
+}
+<h3>@ViewData["Title"]</h3>
+
+<a asp-action="Add" class="btn btn-primary mb-1">Add new branch</a>
+<table class="table table-bordered table-striped table-sm text-center" >
+    <thead>
+    <tr>
+        <th>Branch ID</th>
+        <th>Branch Name</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var branch in Model)
+    {
+        <tr>
+            <td>@branch.LibraryBranchId</td>
+            <td>@branch.BranchName</td>
+            <td>
+                <div class="d-flex justify-content-center">
+                    <a asp-action="Edit" asp-route-id="@branch.LibraryBranchId"
+                       class="btn btn-sm btn-warning me-2">Edit</a>
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure to delete this branch?');">
+                        <input type="hidden" name="id" value="@branch.LibraryBranchId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<!-- page -->
+<div class="pagination">
+    @Html.PagedListPager(Model, page => Url.Action("ListAll", new { page }))
+</div>

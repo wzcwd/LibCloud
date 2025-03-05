@@ -1,0 +1,47 @@
+@model Book
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<h2 class="text-center">Book Details</h2>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Book ID</th>
+        <td>@Model.BookId</td>
+    </tr>
+    <tr>
+        <th>Title</th>
+        <td>@Model.Title</td>
+    </tr>
+    
+    <tr>
+        <th>Author ID</th>
+        <td>@Model.AuthorId</td>
+    </tr>
+    <tr>
+        <th>Author</th>
+        <td>@Model.Author.Name</td>
+    </tr>
+
+    <tr>
+        <th>Published Year</th>
+        <td>@Model.YearPublished</td>
+    </tr>
+    <tr>
+        <th>ISBN</th>
+        <td>@Model.ISBN</td>
+    </tr>
+    
+    <tr>
+        <th>Library Branch ID</th>
+        <td>@Model.LibraryBranchId</td>
+    </tr>
+    
+    <tr>
+        <th>Library Branch</th>
+        <td>@Model.LibraryBranch.BranchName</td>
+    </tr>
+</table>
+
+<a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-primary">Back</a>

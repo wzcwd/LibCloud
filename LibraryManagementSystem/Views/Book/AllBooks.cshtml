@@ -1,0 +1,51 @@
+@model X.PagedList.IPagedList<LibraryManagementSystem.Models.ViewModels.BookViewModel>
+@using LibraryManagementSystem.Models.ViewModels
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "All Books";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<a asp-action="Add" class="btn btn-primary mb-1">Add new book</a>
+<table class="table table-bordered table-striped table-sm text-center">
+    <thead>
+    <tr>
+        <th>Book ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var book in Model)
+    {
+        <tr>
+            <td>@book.BookId</td>
+            <td>@book.Title</td>
+            <td>@book.AuthorName</td>
+            <td>
+                <div class="d-flex justify-content-center">
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId"
+                       class="btn btn-sm btn-primary me-2">
+                        Details
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@book.BookId" class="btn btn-sm btn-warning me-2">Edit</a>
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure to delete?');">
+                        <input type="hidden" name="id" value="@book.BookId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<!-- page -->
+<div class="pagination">
+    @Html.PagedListPager(Model, page => Url.Action("ListAll", new { page }))
+</div>
+
+
