@@ -9,6 +9,7 @@ public class Author
 
     [Required]
     [StringLength(100, ErrorMessage = "Exceed the maximum length")]
+    
     [MinLength(1, ErrorMessage = "Author name cannot be empty")]
     public string Name { get; set; } = "Unknown Author";
 

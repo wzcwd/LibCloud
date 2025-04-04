@@ -29,7 +29,7 @@ public class HomeController(LibraryContext context, ILogger<HomeController> logg
             }
             else if (searchBy == "author")
             {
-                books = books.Where(b => b.Title.ToLower().Contains(searchLower));
+                books = books.Where(b => b.Author.Name.ToLower().Contains(searchLower));
             }
         }
         var pagedBooks = books.Select(b=> new BookViewModel

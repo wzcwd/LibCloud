@@ -24,3 +24,9 @@
     </button>
     <a asp-action="ListAll" class="btn btn-secondary" style="margin-top: 10px">Cancel</a>
 </form>
+
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

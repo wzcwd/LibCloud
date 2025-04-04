@@ -14,4 +14,4 @@ public class Customer
     [EmailAddress(ErrorMessage = "Invalid Email format")] 
     public string Email { get; set; } 
 
-}
+} 

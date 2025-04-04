@@ -24,13 +24,13 @@ The project is developed using the following technologies:
 ## 2. Getting Started
 
 1. **Apply Database Migrations:**
-Run the following commands to create new database:
+   Run the following commands to create new database:
    ```sh
    dotnet ef migrations add InitialCreate
    dotnet ef database update
    ```
 2. **Run the Application:**
-Start the application using the following command:
+   Start the application using the following command:
    ```sh
    dotnet run
    ```
@@ -42,6 +42,7 @@ If you make changes to the database models, follow these steps:
    dotnet ef migrations add UpdateDatabase
    ```
 2. **Apply the migration to update the database:**
+   
    ```sh
    dotnet ef database update
    ```
