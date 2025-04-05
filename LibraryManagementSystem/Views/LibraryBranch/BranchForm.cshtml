@@ -5,12 +5,13 @@
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="Save" method="post">
+    <antiforgery />
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="BranchName" class="control-label"> Branch Name</label>
         <input asp-for="BranchName" class="form-control"/>
         <!-- Add hidden field to pass LibraryBranchId -->
-        <input type="hidden" asp-for="LibraryBranchId" />
+        <input type="hidden" asp-for="LibraryBranchId"/>
     </div>
 
     <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure to submit ?');"

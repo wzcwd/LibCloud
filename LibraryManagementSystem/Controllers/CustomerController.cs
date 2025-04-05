@@ -1,12 +1,14 @@
 using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList.Extensions;
 
 namespace LibraryManagementSystem.Controllers;
 
+[Authorize] 
 public class CustomerController(LibraryContext context) : Controller
 {
     public IActionResult ListAll(int page = 1, int pageSize = 12)
@@ -61,6 +63,7 @@ public class CustomerController(LibraryContext context) : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Delete(int id)
     {
         var customer = context.Customers.Find(id);
@@ -75,6 +78,7 @@ public class CustomerController(LibraryContext context) : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Save(Customer customer)
     {
         ViewData["ActivePage"] = "Customer";
