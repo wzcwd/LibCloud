@@ -3,10 +3,11 @@ using LibraryManagementSystem.Data;
 using Microsoft.AspNetCore.Mvc;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using X.PagedList.Extensions;
 
 namespace LibraryManagementSystem.Controllers;
-
+[Authorize] 
 public class HomeController(LibraryContext context, ILogger<HomeController> logger) : Controller
 {
 

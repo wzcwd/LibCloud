@@ -8,15 +8,15 @@
     body {
         background: url('@Url.Content("~/images/background.webp")') no-repeat center center fixed;
         background-size: cover;
-        backdrop-filter: blur(10px); /* 玻璃模糊效果 */
-        -webkit-backdrop-filter: blur(10px); /* Safari 支持 */
+        backdrop-filter: blur(10px); /* glass effect */
+        -webkit-backdrop-filter: blur(10px); /* support Safari */
     }
     .form-signin {
-        background: rgba(255, 255, 255, 0.4); /* 适当半透明 */
+        background: rgba(255, 255, 255, 0.4); /* control transparency  */
         padding: 2rem;
         border-radius: 10px;
         max-width: 500px;
-        margin: 150px auto;
+        margin: 100px auto;
     }
     
 </style>
@@ -34,7 +34,7 @@
     </div>
 
     <div class="form-floating mb-3">
-        <input asp-for="Email" class="form-control" placeholder="Email"/>
+        <input asp-for="Email" class="form-control" placeholder="user@example.com"/>
         <label asp-for="Email">Email</label>
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>

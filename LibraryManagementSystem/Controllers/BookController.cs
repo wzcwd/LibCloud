@@ -1,6 +1,7 @@
 using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using X.PagedList.Extensions;
 
 namespace LibraryManagementSystem.Controllers;
 
+[Authorize] 
 public class BookController(LibraryContext context) : Controller
 {
     public IActionResult ListAll(int page = 1, int pageSize = 13)
@@ -68,6 +70,7 @@ public class BookController(LibraryContext context) : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Delete(int id)
     {
         var book = context.Books.Find(id);
@@ -83,6 +86,7 @@ public class BookController(LibraryContext context) : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Save(Book book)
     {
         ViewData["ActivePage"] = "Book";

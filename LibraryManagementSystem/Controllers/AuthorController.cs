@@ -1,11 +1,13 @@
 using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList.Extensions;
 
 namespace LibraryManagementSystem.Controllers;
 
+[Authorize] 
 public class AuthorController(LibraryContext context) : Controller
 {
     public IActionResult ListAll(int page = 1, int pageSize = 12)
@@ -74,6 +76,7 @@ public class AuthorController(LibraryContext context) : Controller
     
     
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Save(Author author)
     {
         ViewData["ActivePage"] = "Author";
