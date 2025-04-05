@@ -1,10 +1,11 @@
 using LibraryManagementSystem.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyModel;
 
 namespace LibraryManagementSystem.Data;
 
-public class LibraryContext : DbContext
+public class LibraryContext : IdentityDbContext<User>
 {
     public LibraryContext(DbContextOptions<LibraryContext> options) : base(options)
     {
@@ -18,7 +19,8 @@ public class LibraryContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        
+        base.OnModelCreating(modelBuilder);
+
         // Seeding initial Data
         modelBuilder.Entity<Author>().HasData(
             new Author { AuthorId = 1, Name = "Charles Dickens" },
@@ -79,7 +81,8 @@ public class LibraryContext : DbContext
             new LibraryBranch { LibraryBranchId = 11, BranchName = "Vancouver Public Library Point Grey Branch" },
             new LibraryBranch { LibraryBranchId = 12, BranchName = "Vancouver Public Library Fraserview Branch" },
             new LibraryBranch { LibraryBranchId = 13, BranchName = "Vancouver Public Library Strathcona Branch" },
-            new LibraryBranch { LibraryBranchId = 14, BranchName = "Vancouver Public Library Renfrew-Collingwood Branch" },
+            new LibraryBranch
+                { LibraryBranchId = 14, BranchName = "Vancouver Public Library Renfrew-Collingwood Branch" },
             new LibraryBranch { LibraryBranchId = 15, BranchName = "Vancouver Public Library Sunrise Branch" },
             new LibraryBranch { LibraryBranchId = 16, BranchName = "Vancouver Public Library Oakridge Branch" },
             new LibraryBranch { LibraryBranchId = 17, BranchName = "Vancouver Public Library Hastings-Sunrise Branch" },
@@ -191,5 +194,35 @@ public class LibraryContext : DbContext
                 ISBN = "978-3-16-148410-19"
             }
         );
+    }
+
+    public static async Task CreateUser(IServiceProvider serviceProvider)
+    {
+        UserManager<User> userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+        RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        String username = "admin";
+        String password = "Aa123456";
+        String rolename = "Admin";
+        String email = "admin@example.com";
+
+        if (await roleManager.FindByNameAsync(rolename) == null)
+        {
+            await roleManager.CreateAsync(new IdentityRole(rolename));
+        }
+
+        if (await userManager.FindByNameAsync(username) == null)
+        {
+            User user = new User()
+            {
+                UserName = username,
+                Email = email,
+                EmailConfirmed = true,
+            };
+            IdentityResult result = await userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, rolename);
+            }
+        }
     }
 }
