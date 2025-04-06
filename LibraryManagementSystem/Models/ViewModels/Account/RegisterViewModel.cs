@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagementSystem.Models.ViewModels;
+namespace LibraryManagementSystem.Models.ViewModels.Account;
 
 public class RegisterViewModel
 {

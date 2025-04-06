@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using LibraryManagementSystem.Models;
-using LibraryManagementSystem.Models.ViewModels;
+using LibraryManagementSystem.Models.ViewModels.Account;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -150,11 +150,13 @@ public class AccountController : Controller
                 await signInManager.SignInAsync(user, isPersistent: false);
                 return Redirect(returnUrl);
             }
+
             foreach (var error in createResult.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
-        }else
+        }
+        else
         {
             // user(email) exists but external login not linked, so link it
             var addLoginResult = await userManager.AddLoginAsync(user, info);
@@ -163,11 +165,103 @@ public class AccountController : Controller
                 await signInManager.SignInAsync(user, isPersistent: false);
                 return Redirect(returnUrl);
             }
+
             foreach (var error in addLoginResult.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
+
         return View("Login");
+    }
+
+    public async Task<IActionResult> UpdateAccount()
+    {
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        logger.LogInformation("User with ID '{UserId}' is accessing the account update page.", id);
+        if (string.IsNullOrEmpty(id))
+        {
+            return NotFound();
+        }
+
+        var user = await userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var model = new AccountViewModel()
+        {
+            Username = user.UserName!,
+            Email = user.Email!
+        };
+
+        return View("AccountInfo", model); 
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public IActionResult ChangePassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(string CurrentPassword, string NewPassword, string ConfirmPassword)
+    {
+        if (string.IsNullOrWhiteSpace(CurrentPassword) || string.IsNullOrWhiteSpace(NewPassword) || string.IsNullOrWhiteSpace(ConfirmPassword))
+        {
+            ModelState.AddModelError("", "All fields are required.");
+            return View("AccountInfo");
+        }
+
+        if (NewPassword != ConfirmPassword)
+        {
+            ModelState.AddModelError("", "New password and confirmation do not match.");
+            return View("AccountInfo");
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await userManager.FindByIdAsync(userId!);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var result = await userManager.ChangePasswordAsync(user, CurrentPassword, NewPassword);
+
+        if (result.Succeeded)
+        {
+            await signInManager.RefreshSignInAsync(user); // Refresh the login session
+            ViewData["PasswordChangeSuccess"] = "Password changed successfully.";
+        }
+        else
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+        }
+
+        var model = new AccountViewModel()
+        {
+            Username = user.UserName!,
+            Email = user.Email!
+        };
+
+        return View("AccountInfo", model);
     }
 }

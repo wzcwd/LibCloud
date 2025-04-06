@@ -13,18 +13,9 @@
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
   <link rel="stylesheet" href="~/LibraryManagementSystem.styles.css" asp-append-version="true"/>
   <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/sidebars/">
+  
 
-  <style>
-    .bd-placeholder-img {
-      font-size: 1.125rem;
-      text-anchor: middle;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      user-select: none;
-    }
-  </style>
 
-  <!-- Custom styles for this template -->
   <!-- <link href="sidebars.css" rel="stylesheet"> --> <!-- It is done by _Layout.cshtml.css -->
 </head>
 
@@ -111,7 +102,7 @@
     @if (User.Identity.IsAuthenticated)
     {
         <div class="dropdown">
-          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1"
+          <a  class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1"
              data-bs-toggle="dropdown" aria-expanded="false">
             @if (User.IsInRole("Admin"))
             {
@@ -124,14 +115,18 @@
             <strong>@User.Identity.Name</strong>
           </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li>
+                <a asp-controller="Account" asp-action="UpdateAccount" class="dropdown-item" >Account</a>
+              </li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
               <li>
                 <form asp-action="Logout" asp-controller="Account" method="post" class="dropdown-item p-0 m-0">
                   <antiforgery/>
-                  <button type="submit" class="btn text-white w-100 text-start">Logout</button>
+                  <button type="submit" class="btn text-white w-100 text-start">Logout
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    </button>
                 </form>
               </li>
             </ul>
