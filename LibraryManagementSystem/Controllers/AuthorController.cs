@@ -58,7 +58,7 @@ public class AuthorController(LibraryContext context) : Controller
         context.Authors.Remove(author);
         context.SaveChanges();
         ViewData["ActivePage"] = "Author";
-        return RedirectToAction("ListAll");
+        return RedirectToAction(nameof(ListAll));
     }
 
     public IActionResult Edit(int id)
@@ -91,7 +91,7 @@ public class AuthorController(LibraryContext context) : Controller
                 context.Authors.Update(author);
             }
             context.SaveChanges();
-            return RedirectToAction("ListAll");
+            return RedirectToAction(nameof(ListAll));
         }
         return View("AuthorForm", author);
     }

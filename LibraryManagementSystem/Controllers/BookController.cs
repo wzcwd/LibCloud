@@ -82,7 +82,7 @@ public class BookController(LibraryContext context) : Controller
         context.Books.Remove(book);
         context.SaveChanges();
         ViewData["ActivePage"] = "Book";
-        return RedirectToAction("ListAll");
+        return RedirectToAction(nameof(ListAll));
     }
 
     [HttpPost]
@@ -109,7 +109,7 @@ public class BookController(LibraryContext context) : Controller
             }
 
             context.SaveChanges();
-            return RedirectToAction("ListAll");
+            return RedirectToAction(nameof(ListAll));
         }
 
         return View("BookForm", book);

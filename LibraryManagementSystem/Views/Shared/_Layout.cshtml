@@ -56,8 +56,8 @@
   <h1 class="visually-hidden">Sidebar</h1>
   <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-      <img src="~/images/library-logo.svg" alt="Library Logo" width="50" height="50" class="me-2" />
-      <span class="fs-4" style="position: relative; left: 10px;">Menu</span>
+      <img src="~/images/library-logo.svg" alt="Library Logo" width="50" height="50" class="me-2 mt-1" />
+      <span class="fs-4" style="position: relative; left: 10px;"><strong>LibCloud</strong></span>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
@@ -113,7 +113,14 @@
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1"
              data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-fill-gear me-2 fs-2"  alt="User Avatar" ></i>
+            @if (User.IsInRole("Admin"))
+            {
+              <i class="bi bi-person-fill-gear me-2 fs-2" alt="User Avatar"></i>
+            }
+            else
+            {
+              <i class="bi bi-person-fill-check me-2 fs-2" alt="User Avatar" ></i>
+            }
             <strong>@User.Identity.Name</strong>
           </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">

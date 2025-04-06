@@ -53,7 +53,7 @@ public class LibraryBranchController(LibraryContext context) : Controller
         context.LibraryBranch.Remove(branch);
         context.SaveChanges();
         ViewData["ActivePage"] = "Branch";
-        return RedirectToAction("ListAll");
+        return RedirectToAction(nameof(ListAll));
     }
     
     [HttpPost]
@@ -72,7 +72,7 @@ public class LibraryBranchController(LibraryContext context) : Controller
                 context.LibraryBranch.Update(branch);
             }
             context.SaveChanges();
-            return RedirectToAction("ListAll");
+            return RedirectToAction(nameof(ListAll));
         }
         return View("BranchForm", branch);
     }
