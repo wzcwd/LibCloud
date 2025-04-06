@@ -74,7 +74,7 @@ public class CustomerController(LibraryContext context) : Controller
         context.Customers.Remove(customer);
         context.SaveChanges();
         ViewData["ActivePage"] = "Customer";
-        return RedirectToAction("ListAll");
+        return RedirectToAction(nameof(ListAll));
     }
 
     [HttpPost]
@@ -93,7 +93,7 @@ public class CustomerController(LibraryContext context) : Controller
                 context.Customers.Update(customer);
             }
             context.SaveChanges();
-            return RedirectToAction("ListAll");
+            return RedirectToAction(nameof(ListAll));
         }
         return View("CustomerForm", customer);
     }

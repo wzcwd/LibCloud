@@ -1,15 +1,15 @@
+using System.Security.Claims;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace LibraryManagementSystem.Controllers;
 
 public class AccountController : Controller
 {
-    private UserManager<User> userManager;
-    private SignInManager<User> signInManager;
+    private readonly UserManager<User> userManager;
+    private readonly SignInManager<User> signInManager;
     private readonly ILogger<AccountController> logger;
 
     public AccountController(UserManager<User> userMngr, SignInManager<User> signInMngr, ILogger<AccountController> log)
@@ -54,6 +54,7 @@ public class AccountController : Controller
             {
                 return Redirect(model.ReturnUrl);
             }
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -68,7 +69,7 @@ public class AccountController : Controller
     {
         await signInManager.SignOutAsync();
         logger.LogInformation("logged out successfully");
-        return RedirectToAction("Login", "Account");
+        return RedirectToAction(nameof(Login), "Account");
     }
 
     [HttpPost]
@@ -90,9 +91,10 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            logger.LogInformation("New user '{Username}' registered successfully at {Time}.", model.Username, DateTime.Now);
+            logger.LogInformation("New user '{Username}' registered successfully at {Time}.", model.Username,
+                DateTime.Now);
             await signInManager.SignInAsync(user, isPersistent: false);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         foreach (var error in result.Errors)
@@ -101,5 +103,71 @@ public class AccountController : Controller
         }
 
         return View(model);
+    }
+
+
+    public IActionResult ExternalLogin(string provider, string returnUrl = "/")
+    {
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+        var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        return Challenge(properties, provider); // go the third-party Authentication plateform
+    }
+
+
+    public async Task<IActionResult> ExternalLoginCallback(string returnUrl = "/", string? remoteError = null)
+    {
+        if (remoteError != null)
+        {
+            ModelState.AddModelError(string.Empty, $"External provider error: {remoteError}");
+            return RedirectToAction(nameof(Login));
+        }
+
+        var info = await signInManager.GetExternalLoginInfoAsync();
+        if (info == null)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        // try to log in 
+        var result =
+            await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+        if (result.Succeeded)
+        {
+            return Redirect(returnUrl);
+        }
+
+        // check if the email already exists
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        var user = await userManager.FindByEmailAsync(email!);
+        if (user == null)
+        {
+            // if user does not exist, create new user
+            user = new User { UserName = email, Email = email };
+            var createResult = await userManager.CreateAsync(user);
+            if (createResult.Succeeded)
+            {
+                await userManager.AddLoginAsync(user, info);
+                await signInManager.SignInAsync(user, isPersistent: false);
+                return Redirect(returnUrl);
+            }
+            foreach (var error in createResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }else
+        {
+            // user(email) exists but external login not linked, so link it
+            var addLoginResult = await userManager.AddLoginAsync(user, info);
+            if (addLoginResult.Succeeded)
+            {
+                await signInManager.SignInAsync(user, isPersistent: false);
+                return Redirect(returnUrl);
+            }
+            foreach (var error in addLoginResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }
+        return View("Login");
     }
 }
