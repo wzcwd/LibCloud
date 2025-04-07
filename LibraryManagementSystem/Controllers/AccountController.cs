@@ -280,8 +280,36 @@ public class AccountController : Controller
             return NotFound();
         }
 
-        var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+        // verify the verification code
+        // get verification code and time stamp from session
+        var storedCode = HttpContext.Session.GetString("EmailVerificationCode");
+        var generatedTimeString = HttpContext.Session.GetString("CodeGeneratedTime");
+        
+        if (string.IsNullOrEmpty(storedCode) || string.IsNullOrEmpty(generatedTimeString))
+        {
+            ModelState.AddModelError("", "Verification code not found or expired. Please request a new code.");
+            return View(model);
+        }
+        
+        // parse time stamp
+        DateTime generatedTime = DateTime.Parse(generatedTimeString);
+        
+        // verify the valid time
+        // Todo: improve the hardcoding approach
+        if (DateTime.UtcNow - generatedTime > TimeSpan.FromMinutes(5))
+        {
+            ModelState.AddModelError("", "Verification code has expired. Please request a new code.");
+            return View(model);
+        }
 
+        if (model.VerificationCode != storedCode)
+        {
+            ModelState.AddModelError("", "Incorrect verification code.");
+            return View(model);
+        }
+        
+        // change password
+        var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
         if (result.Succeeded)
         {
             await signInManager.RefreshSignInAsync(user); // Refresh the login session
@@ -297,7 +325,6 @@ public class AccountController : Controller
         
         return View(model);
     }
-    
     
     [Authorize]
     [HttpPost]
@@ -322,7 +349,7 @@ public class AccountController : Controller
         var message = $"<p>Your verification code is: <strong>{code}</strong></p>";
         
         await _emailSender.SendEmailAsync(user.Email, "Your Verification Code", message);
-        
+        // Todo: improve the hardcoding approach
         int validMinutes = 5;
         return Content($"A Verification code has been sent. It is valid for {validMinutes} minutes.");
     }
