@@ -1,5 +1,6 @@
 using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
+using LibraryManagementSystem.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,7 @@ builder.Services.AddAuthentication()
     {
         googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
         googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        googleOptions.AccessDeniedPath  = "/Account/Login";
     });
 
 builder.Services.AddAuthentication()
@@ -40,7 +42,13 @@ builder.Services.AddAuthentication()
     {
         facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
         facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+        facebookOptions.AccessDeniedPath = "/Account/Login";
     });
+
+
+builder.Services.AddSession(); // enable Session for verification code
+
+builder.Services.AddScoped<SendGridEmailSender>();
 
 var app = builder.Build();
 
@@ -60,6 +68,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseSession(); // enable Session for verification code
 
 app.UseAuthentication();
 app.UseAuthorization();

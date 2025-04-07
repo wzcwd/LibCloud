@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Models.ViewModels.Account;
+using LibraryManagementSystem.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,12 +13,14 @@ public class AccountController : Controller
     private readonly UserManager<User> userManager;
     private readonly SignInManager<User> signInManager;
     private readonly ILogger<AccountController> logger;
+    private readonly SendGridEmailSender _emailSender;
 
-    public AccountController(UserManager<User> userMngr, SignInManager<User> signInMngr, ILogger<AccountController> log)
+    public AccountController(UserManager<User> userMngr, SignInManager<User> signInMngr, ILogger<AccountController> log, SendGridEmailSender emailSender)
     {
         userManager = userMngr;
         signInManager = signInMngr;
         logger = log;
+        _emailSender = emailSender;
     }
 
     [HttpGet]
@@ -105,7 +109,6 @@ public class AccountController : Controller
         return View(model);
     }
 
-
     public IActionResult ExternalLogin(string provider, string returnUrl = "/")
     {
         var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
@@ -174,21 +177,14 @@ public class AccountController : Controller
 
         return View("Login");
     }
-
+    
+    
+    [Authorize] 
     public async Task<IActionResult> UpdateAccount()
     {
-        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        logger.LogInformation("User with ID '{UserId}' is accessing the account update page.", id);
-        if (string.IsNullOrEmpty(id))
-        {
-            return NotFound();
-        }
-
-        var user = await userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
+        // get user by id
+        var user = await userManager.GetUserAsync(User);
+        logger.LogInformation("User '{UserName}' is accessing the account update page.", user.UserName);
 
         var model = new AccountViewModel()
         {
@@ -198,55 +194,50 @@ public class AccountController : Controller
 
         return View("AccountInfo", model); 
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public IActionResult ChangePassword()
-    {
-        return View();
-    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangePassword(string CurrentPassword, string NewPassword, string ConfirmPassword)
+    [Authorize] 
+    public async Task<IActionResult> UpdateAccount(AccountViewModel model)
     {
-        if (string.IsNullOrWhiteSpace(CurrentPassword) || string.IsNullOrWhiteSpace(NewPassword) || string.IsNullOrWhiteSpace(ConfirmPassword))
+        if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("", "All fields are required.");
-            return View("AccountInfo");
+            return View("AccountInfo", model);
         }
 
-        if (NewPassword != ConfirmPassword)
-        {
-            ModelState.AddModelError("", "New password and confirmation do not match.");
-            return View("AccountInfo");
-        }
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var user = await userManager.FindByIdAsync(userId!);
+        // get user
+        var user = await userManager.GetUserAsync(User);
         if (user == null)
         {
             return NotFound();
         }
 
-        var result = await userManager.ChangePasswordAsync(user, CurrentPassword, NewPassword);
+        // Check if new username is taken by another user
+        var existingUser = await userManager.FindByNameAsync(model.Username);
+        if (existingUser != null && existingUser.Id != user.Id)
+        {
+            ModelState.AddModelError("Username", "This username is already taken.");
+            return View("AccountInfo", model);
+        }
+        
+        // Check if new email is taken by another user
+        var existingUserByEmail = await userManager.FindByEmailAsync(model.Email);
+        if (existingUserByEmail != null && existingUserByEmail.Id != user.Id)
+        {
+            ModelState.AddModelError("Email", "This email is already in use.");
+            return View("AccountInfo", model);
+        }
+        
+        // update user info
+        user.UserName = model.Username;
+        user.Email = model.Email;
+        var result = await userManager.UpdateAsync(user);
 
+        // if success, refresh the user info
         if (result.Succeeded)
         {
-            await signInManager.RefreshSignInAsync(user); // Refresh the login session
-            ViewData["PasswordChangeSuccess"] = "Password changed successfully.";
+            await signInManager.RefreshSignInAsync(user);
+            ViewData["UpdateSuccess"] = "Account updated successfully.";
         }
         else
         {
@@ -255,13 +246,84 @@ public class AccountController : Controller
                 ModelState.AddModelError("", error.Description);
             }
         }
+        
+        return View("AccountInfo", model);    
+    }
+    
+    
+    [Authorize] 
+    public IActionResult ChangePassword()
+    {
+        return View();
+    }
 
-        var model = new AccountViewModel()
+    [Authorize] 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(PasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
         {
-            Username = user.UserName!,
-            Email = user.Email!
-        };
+            return View(model);
+        }
 
-        return View("AccountInfo", model);
+        if (model.NewPassword != model.ConfirmPassword)
+        {
+            ModelState.AddModelError("", "New password and confirmation do not match.");
+            return View(model);
+        }
+
+        // get user 
+        var user = await userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+        if (result.Succeeded)
+        {
+            await signInManager.RefreshSignInAsync(user); // Refresh the login session
+            ViewData["UpdateSuccess"] = "Password changed successfully.";
+        }
+        else
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+        }
+        
+        return View(model);
+    }
+    
+    
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendCode()
+    {
+        logger.LogInformation("SendCode() action started.");
+        var user = await userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrEmpty(user.Email))
+        {
+            return Content("User not found or email is empty.");
+        }
+
+        // generate a 6-digit verification code
+        var code = new Random().Next(100000, 999999).ToString();
+
+        // store the verification code to session
+        HttpContext.Session.SetString("EmailVerificationCode", code);
+        // store the generate time for the code
+        HttpContext.Session.SetString("CodeGeneratedTime", DateTime.UtcNow.ToString());
+
+        var message = $"<p>Your verification code is: <strong>{code}</strong></p>";
+        
+        await _emailSender.SendEmailAsync(user.Email, "Your Verification Code", message);
+        
+        int validMinutes = 5;
+        return Content($"A Verification code has been sent. It is valid for {validMinutes} minutes.");
     }
 }

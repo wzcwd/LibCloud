@@ -12,6 +12,14 @@
 }
 <h2>@ViewData["Title"]</h2>
 
+@if (ViewData["UpdateSuccess"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ViewData["UpdateSuccess"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <form asp-action="UpdateAccount" method="post">
     <antiforgery />
     <div asp-validation-summary="All" class="text-danger"></div>
@@ -36,9 +44,9 @@
     </div>
 
     <button type="submit" class="btn btn-primary" style="margin-top: 10px"
-            onclick="return confirm('Are you sure to edit the author?');">Update</button>
+            onclick="return confirm('Are you sure to update?');">Update</button>
 
-    <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-secondary ms-2" style="margin-top: 10px;">Cancel</a>
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary ms-2" style="margin-top: 10px;">Cancel</a>
 </form>
 
 @if (hasPassword)
