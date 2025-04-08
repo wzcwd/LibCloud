@@ -7,7 +7,7 @@ using X.PagedList.Extensions;
 
 namespace LibraryManagementSystem.Controllers;
 
-[Authorize] 
+[Authorize]
 public class AuthorController(LibraryContext context) : Controller
 {
     public IActionResult ListAll(int page = 1, int pageSize = 12)
@@ -25,7 +25,7 @@ public class AuthorController(LibraryContext context) : Controller
         ViewData["ActivePage"] = "Author";
         return View("AllAuthors", viewModel);
     }
-    
+
     public IActionResult Search(string searchString, int page = 1, int pageSize = 12)
     {
         // Deal with case transformation
@@ -33,19 +33,15 @@ public class AuthorController(LibraryContext context) : Controller
         var author = context.Authors
             .Where(a => a.Name.ToLower().Contains(searchLower))
             .OrderBy(a => a.AuthorId)
-            .Select(a=> new AuthorViewModel
+            .Select(a => new AuthorViewModel
             {
                 AuthorId = a.AuthorId,
                 AuthorName = a.Name
             }).ToPagedList(page, pageSize);
-        
+
         ViewData["ActivePage"] = "Author";
         return View("AllAuthors", author);
     }
-    
-    
-    
-    
 
     public IActionResult Delete(int id)
     {
@@ -73,8 +69,8 @@ public class AuthorController(LibraryContext context) : Controller
         ViewData["ActivePage"] = "Author";
         return View("AuthorForm", new Author());
     }
-    
-    
+
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Save(Author author)
@@ -90,9 +86,11 @@ public class AuthorController(LibraryContext context) : Controller
             {
                 context.Authors.Update(author);
             }
+
             context.SaveChanges();
             return RedirectToAction(nameof(ListAll));
         }
+
         return View("AuthorForm", author);
     }
 }
