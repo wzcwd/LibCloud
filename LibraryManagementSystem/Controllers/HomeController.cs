@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using LibraryManagementSystem.Data;
 using Microsoft.AspNetCore.Mvc;
-using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using X.PagedList.Extensions;
 
 namespace LibraryManagementSystem.Controllers;
@@ -48,6 +48,25 @@ public class HomeController(LibraryContext context, ILogger<HomeController> logg
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var feature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+        var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+        var exceptionMessage = feature?.Error.Message;
+
+        var model = new ErrorViewModel
+        {
+            RequestId = requestId,
+            ExceptionMessage = exceptionMessage,
+        };
+        return View(model);
+    }
+    
+    public IActionResult HandleStatusCode(int code)
+    {
+        var viewModel = new ErrorViewModel
+        {
+            RequestId = HttpContext.TraceIdentifier,
+            StatusCode = code
+        };
+        return View("Error", viewModel); 
     }
 }

@@ -87,3 +87,7 @@
 <div class="pagination">
     @Html.PagedListPager(Model, page => Url.Action("Search", new { page }))
 </div>
+
+@{
+    throw new Exception("test");
+}
