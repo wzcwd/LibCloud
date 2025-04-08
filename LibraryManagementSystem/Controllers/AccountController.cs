@@ -15,7 +15,8 @@ public class AccountController : Controller
     private readonly ILogger<AccountController> logger;
     private readonly SendGridEmailSender _emailSender;
 
-    public AccountController(UserManager<User> userMngr, SignInManager<User> signInMngr, ILogger<AccountController> log, SendGridEmailSender emailSender)
+    public AccountController(UserManager<User> userMngr, SignInManager<User> signInMngr, ILogger<AccountController> log,
+        SendGridEmailSender emailSender)
     {
         userManager = userMngr;
         signInManager = signInMngr;
@@ -116,7 +117,6 @@ public class AccountController : Controller
         return Challenge(properties, provider); // go the third-party Authentication plateform
     }
 
-
     public async Task<IActionResult> ExternalLoginCallback(string returnUrl = "/", string? remoteError = null)
     {
         if (remoteError != null)
@@ -177,12 +177,12 @@ public class AccountController : Controller
 
         return View("Login");
     }
-    
-    
-    [Authorize] 
+
+
+    [Authorize]
     public async Task<IActionResult> UpdateAccount()
     {
-        // get user by id
+        // get user
         var user = await userManager.GetUserAsync(User);
         logger.LogInformation("User '{UserName}' is accessing the account update page.", user.UserName);
 
@@ -192,12 +192,12 @@ public class AccountController : Controller
             Email = user.Email!
         };
 
-        return View("AccountInfo", model); 
+        return View("AccountInfo", model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize] 
+    [Authorize]
     public async Task<IActionResult> UpdateAccount(AccountViewModel model)
     {
         if (!ModelState.IsValid)
@@ -209,7 +209,7 @@ public class AccountController : Controller
         var user = await userManager.GetUserAsync(User);
         if (user == null)
         {
-            return NotFound();
+            throw new Exception("We can't find the user, please contact the administrator.");
         }
 
         // Check if new username is taken by another user
@@ -219,7 +219,7 @@ public class AccountController : Controller
             ModelState.AddModelError("Username", "This username is already taken.");
             return View("AccountInfo", model);
         }
-        
+
         // Check if new email is taken by another user
         var existingUserByEmail = await userManager.FindByEmailAsync(model.Email);
         if (existingUserByEmail != null && existingUserByEmail.Id != user.Id)
@@ -227,7 +227,7 @@ public class AccountController : Controller
             ModelState.AddModelError("Email", "This email is already in use.");
             return View("AccountInfo", model);
         }
-        
+
         // update user info
         user.UserName = model.Username;
         user.Email = model.Email;
@@ -246,18 +246,18 @@ public class AccountController : Controller
                 ModelState.AddModelError("", error.Description);
             }
         }
-        
-        return View("AccountInfo", model);    
+
+        return View("AccountInfo", model);
     }
-    
-    
-    [Authorize] 
+
+
+    [Authorize]
     public IActionResult ChangePassword()
     {
         return View();
     }
 
-    [Authorize] 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangePassword(PasswordViewModel model)
@@ -284,16 +284,15 @@ public class AccountController : Controller
         // get verification code and time stamp from session
         var storedCode = HttpContext.Session.GetString("EmailVerificationCode");
         var generatedTimeString = HttpContext.Session.GetString("CodeGeneratedTime");
-        
+
         if (string.IsNullOrEmpty(storedCode) || string.IsNullOrEmpty(generatedTimeString))
         {
-            ModelState.AddModelError("", "Verification code not found or expired. Please request a new code.");
-            return View(model);
+            throw new Exception("Verification code or timestamp is missing. Session error.");
         }
-        
+
         // parse time stamp
         DateTime generatedTime = DateTime.Parse(generatedTimeString);
-        
+
         // verify the valid time
         // Todo: improve the hardcoding approach
         if (DateTime.UtcNow - generatedTime > TimeSpan.FromMinutes(5))
@@ -307,7 +306,7 @@ public class AccountController : Controller
             ModelState.AddModelError("", "Incorrect verification code.");
             return View(model);
         }
-        
+
         // change password
         var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
         if (result.Succeeded)
@@ -322,10 +321,10 @@ public class AccountController : Controller
                 ModelState.AddModelError("", error.Description);
             }
         }
-        
+
         return View(model);
     }
-    
+
     [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -349,6 +348,7 @@ public class AccountController : Controller
         var message = $"<p>Your verification code is: <strong>{code}</strong></p>";
         
         await _emailSender.SendEmailAsync(user.Email, "Your Verification Code", message);
+
         // Todo: improve the hardcoding approach
         int validMinutes = 5;
         return Content($"A Verification code has been sent. It is valid for {validMinutes} minutes.");
