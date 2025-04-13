@@ -58,7 +58,7 @@
             highlightedTitle = highlightedTitle.Replace(searchString,
                 $"<span style='color: red;'>{searchString}</span>");
         }
-        
+
         <tr>
             <td>@book.BookId</td>
             <td>@Html.Raw(highlightedTitle)</td> <!-- mark the keyword red! -->
@@ -84,6 +84,18 @@
 </table>
 
 <!-- page -->
-<div class="pagination">
-    @Html.PagedListPager(Model, page => Url.Action("Search", new { page }))
+<div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("Search", new { page }),
+        new PagedListRenderOptions
+        {
+            UlElementClasses = new[] { "pagination" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" },
+            LinkToPreviousPageFormat = "Prev",
+            LinkToNextPageFormat = "Next",
+            ActiveLiElementClass = "active",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+            MaximumPageNumbersToDisplay = 10,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.IfNeeded
+        })
 </div>
