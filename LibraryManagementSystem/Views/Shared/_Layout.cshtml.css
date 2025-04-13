@@ -17,19 +17,7 @@ main {
     overflow-y: auto;
 }
 
-/*page settings*/
-.page-content {
-    font-size: 14px;
-    min-height: 100vh;
-    overflow-y: auto;
 
-    /*XPageList setting*/
-    .pagination {
-        display: flex;
-        gap: 10px;
-    }
-
-}
 
 
 .bi {

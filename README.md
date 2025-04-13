@@ -35,9 +35,9 @@ The project is developed using the following technologies:
    dotnet ef database update
    ```
 2. **Run the Application:**
-   Start the application using the following command:
+   Start the application using the following command: please run the app with https to enable third-party authentication
    ```sh
-   dotnet run
+   dotnet run --launch-profile https
    ```
 ## 3. Updating the Database
 

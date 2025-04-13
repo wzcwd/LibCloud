@@ -14,6 +14,8 @@ builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("LibraryContext") ??
                       throw new InvalidOperationException("Connection string LibraryContext not found.")));
 
+
+// add identity service
 builder.Services.AddIdentity<User, IdentityRole>(options =>
     {
         options.Password.RequiredLength = 6;
@@ -29,6 +31,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     }).AddEntityFrameworkStores<LibraryContext>()
     .AddDefaultTokenProviders();
 
+// add third-party authentication service
 builder.Services.AddAuthentication()
     .AddGoogle(googleOptions =>
     {
@@ -45,13 +48,15 @@ builder.Services.AddAuthentication()
         facebookOptions.AccessDeniedPath = "/Account/Login";
     });
 
+// enable Session for verification code
+builder.Services.AddSession(); 
 
-builder.Services.AddSession(); // enable Session for verification code
-
+// add email service
 builder.Services.AddScoped<SendGridEmailSender>();
 
 var app = builder.Build();
 
+// seed user data
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -71,12 +76,14 @@ else
     app.UseHsts();
 }
 
+// deal with http status code
 app.UseStatusCodePagesWithReExecute ("/Home/HandleStatusCode", "?code={0}");
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseSession(); // enable Session for verification code
+// enable Session for verification code
+app.UseSession(); 
 
 app.UseAuthentication();
 app.UseAuthorization();

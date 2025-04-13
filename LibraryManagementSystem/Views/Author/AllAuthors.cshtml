@@ -52,6 +52,18 @@
 </table>
 
 <!-- page -->
-<div class="pagination">
-    @Html.PagedListPager(Model, page => Url.Action("ListAll", new { page }))
+<div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("ListAll", new { page }),
+        new PagedListRenderOptions
+        {
+            UlElementClasses = new[] { "pagination" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" },
+            LinkToPreviousPageFormat = "Prev",  
+            LinkToNextPageFormat = "Next",      
+            ActiveLiElementClass = "active",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+            MaximumPageNumbersToDisplay = 10,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.IfNeeded
+        })
 </div>
