@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-The **Library Management System** is an ASP.NET Core MVC project designed to manage books, authors, customers, and library branches. It allows users to perform CRUD (Create, Read, Update, Delete) operations on the library's database. The system uses SQLite as its database and Entity Framework Core for data management.
+The **LibCloud** is an ASP.NET Core MVC project designed to manage books, authors, customers, and library branches. It allows users to perform CRUD (Create, Read, Update, Delete) operations on the library's database. The system uses SQLite as its database and Entity Framework Core for data management.
 
 The system integrates robust authentication features using ASP.NET Core Identity, including user registration, login/logout, and account management. It also supports social media authentication via Google and Facebook, allowing users to sign in with their existing accounts.
 
@@ -28,6 +28,11 @@ The project is developed using the following technologies:
 
 ## 2. Getting Started
 
+0. **Restore Dependencies:**
+   Before running the application, make sure to restore all NuGet packages:
+   ```sh
+   dotnet restore
+   ```
 1. **Apply Database Migrations:**
    Run the following commands to create new database:
    ```sh
@@ -54,17 +59,17 @@ If you make changes to the database models, follow these steps:
 
 ## 4. Social Media Authentication Setup
 
-To enable Google and Facebook login, add the following configuration to your `appsettings.Development.json` file:
+To test Google and Facebook login, add the following configuration to your `appsettings.Development.json` file:
 
 ```json
 "Authentication": {
   "Google": {
-      "ClientId": "395476307861-8rqmfg3ub34ndggqobpetag3t7d3i7ib.apps.googleusercontent.com",
-      "ClientSecret": "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"
+      "ClientId": "<your-client-id>",
+      "ClientSecret": "<your-client-secret>"
   },
   "Facebook": {
-      "AppId": "1631978974101896",
-      "AppSecret": "401cbd26ea0c31bff3bfef3d0fdc1766" 
+      "AppId": "<your-app-id>",
+      "AppSecret": "<your-app-secret>" 
   }
 }
 ```
@@ -79,4 +84,16 @@ dotnet user-secrets set "Authentication:Google:ClientSecret" "<your-client-secre
 dotnet user-secrets set "Authentication:Facebook:AppId" "<your-app-id>"
 dotnet user-secrets set "Authentication:Facebook:AppSecret" "<your-app-secret>"
 ```
+## 5. Email Service Setup
 
+To test email sending functionality using SendGrid, add the following configuration to your `appsettings.Development.json` file:
+
+```json
+"SendGrid": {
+  "ApiKey": "<your-api-key>",
+  "SenderEmail": "<your-sender-email>",
+  "SenderName": "LibCloud"
+}
+```
+
+Replace the placeholders with your actual SendGrid API key and sender information. You can obtain an API key by signing up at [https://sendgrid.com](https://sendgrid.com).
