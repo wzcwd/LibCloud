@@ -5,7 +5,8 @@
 The **LibCloud** is an ASP.NET Core MVC project designed to manage books, authors, customers, and library branches. It allows users to perform CRUD (Create, Read, Update, Delete) operations on the library's database. The system uses SQLite as its database and Entity Framework Core for data management.
 
 The system integrates robust authentication features using ASP.NET Core Identity, including user registration, login/logout, and account management. It also supports social media authentication via Google and Facebook, allowing users to sign in with their existing accounts.
-
+![LibCloud Screenshot](page1.png)
+![LibCloud Screenshot](page2.png)
 ## Features
 
 - **Manage Books/Authors/Customers/Library Branches**
