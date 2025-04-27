@@ -112,7 +112,7 @@ public class AccountController : Controller
 
     public IActionResult ExternalLogin(string provider, string returnUrl = "/")
     {
-        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", returnUrl);
         var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
         return Challenge(properties, provider); // go the third-party Authentication plateform
     }
@@ -289,7 +289,6 @@ public class AccountController : Controller
         {
             throw new Exception("Verification code or timestamp is missing. Session error.");
         }
-
         // parse time stamp
         DateTime generatedTime = DateTime.Parse(generatedTimeString);
 

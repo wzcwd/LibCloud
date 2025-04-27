@@ -410,3 +410,4 @@ FodyWeavers.xsd
 .idea/
 
 appsettings.Production.json
+appsettings.Development.json

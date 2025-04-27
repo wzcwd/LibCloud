@@ -7,12 +7,6 @@ The **LibCloud** is an ASP.NET Core MVC project designed to manage books, author
 The system integrates robust authentication features using ASP.NET Core Identity, including user registration, login/logout, and account management. It also supports social media authentication via Google and Facebook, allowing users to sign in with their existing accounts.
 ![LibCloud Screenshot](page1.png)
 ![LibCloud Screenshot](page2.png)
-## Features
-
-- **Manage Books/Authors/Customers/Library Branches**
-- **User Registration and Identity Management**
-- **Social Media Authentication (Google, Facebook)**
-- **Global Exception Handling**
 
 ## Technologies Used
 
@@ -45,20 +39,8 @@ The project is developed using the following technologies:
    ```sh
    dotnet run --launch-profile https
    ```
-## 3. Updating the Database
 
-If you make changes to the database models, follow these steps:
-1. **Add a new migration:**
-   ```sh
-   dotnet ef migrations add UpdateDatabase
-   ```
-2. **Apply the migration to update the database:**
-   
-   ```sh
-   dotnet ef database update
-   ```
-
-## 4. Social Media Authentication Setup
+## 3. Social Media Authentication Setup
 
 To test Google and Facebook login, add the following configuration to your `appsettings.Development.json` file:
 
@@ -77,15 +59,7 @@ To test Google and Facebook login, add the following configuration to your `apps
 Replace the placeholders with your actual id and secret
 
 
-Alternatively, You can use the .NET Secret Manager to securely store your credentials during development:
-
-```sh
-dotnet user-secrets set "Authentication:Google:ClientId" "<your-client-id>"
-dotnet user-secrets set "Authentication:Google:ClientSecret" "<your-client-secret>"
-dotnet user-secrets set "Authentication:Facebook:AppId" "<your-app-id>"
-dotnet user-secrets set "Authentication:Facebook:AppSecret" "<your-app-secret>"
-```
-## 5. Email Service Setup
+## 4. Email Service Setup
 
 To test email sending functionality using SendGrid, add the following configuration to your `appsettings.Development.json` file:
 
